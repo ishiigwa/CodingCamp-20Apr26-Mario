@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A personal productivity dashboard with time display, focus timer, task list, and quick links">
+    <title>Todo List Life Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle light/dark theme">
+        <span id="theme-icon">🌙</span>
+    </button>
+
+    <main class="dashboard">
+        <!-- Greeting Display Section -->
+        <section class="greeting-section" aria-label="Greeting and time display">
+            <div id="greeting-container">
+                <h1 id="greeting-text" class="greeting-text"></h1>
+                <p id="time-display" class="time-display"></p>
+                <p id="date-display" class="date-display"></p>
+                <div class="name-input-container">
+                    <input 
+                        type="text" 
+                        id="name-input" 
+                        class="name-input" 
+                        placeholder="Enter your name (optional)" 
+                        aria-label="Your name"
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+        </section>
+
+        <!-- Focus Timer Section -->
+        <section class="timer-section" aria-label="Focus timer">
+            <div id="timer-container">
+                <h2 class="section-title">Focus Timer</h2>
+                <div id="timer-display" class="timer-display">25:00</div>
+                <div class="timer-controls">
+                    <button id="timer-start" class="btn btn-primary" aria-label="Start timer">Start</button>
+                    <button id="timer-stop" class="btn btn-secondary" aria-label="Stop timer">Stop</button>
+                    <button id="timer-reset" class="btn btn-secondary" aria-label="Reset timer">Reset</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Task List Section -->
+        <section class="task-section" aria-label="Task list">
+            <div id="task-container">
+                <h2 class="section-title">Tasks</h2>
+                <form id="task-form" class="task-form">
+                    <input 
+                        type="text" 
+                        id="task-input" 
+                        class="task-input" 
+                        placeholder="Add a new task..." 
+                        aria-label="New task text"
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn btn-primary" aria-label="Add task">Add</button>
+                </form>
+                <div class="task-sort-controls">
+                    <label for="task-sort-select" class="sort-label">Sort by:</label>
+                    <select id="task-sort-select" class="sort-select" aria-label="Sort tasks">
+                        <option value="default">Default</option>
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="alpha">A-Z</option>
+                        <option value="incomplete">Incomplete First</option>
+                        <option value="completed">Completed First</option>
+                    </select>
+                </div>
+                <ul id="task-list" class="task-list"></ul>
+            </div>
+        </section>
+
+        <!-- Quick Links Section -->
+        <section class="links-section" aria-label="Quick links">
+            <div id="links-container">
+                <h2 class="section-title">Quick Links</h2>
+                <form id="link-form" class="link-form">
+                    <input 
+                        type="text" 
+                        id="link-name-input" 
+                        class="link-input" 
+                        placeholder="Link name..." 
+                        aria-label="Link name"
+                        autocomplete="off"
+                    >
+                    <input 
+                        type="url" 
+                        id="link-url-input" 
+                        class="link-input" 
+                        placeholder="https://example.com" 
+                        aria-label="Link URL"
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn btn-primary" aria-label="Add link">Add Link</button>
+                </form>
+                <div id="links-list" class="links-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

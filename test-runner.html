@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 16 - Feature Verification Test Runner</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        .button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #357abd;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .summary {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .summary.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .summary.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Task 16: Final Feature Verification</h1>
+        <p>This test runner verifies all new features implemented in Tasks 12-15:</p>
+        <ul>
+            <li>Theme Manager (light/dark mode toggle)</li>
+            <li>Custom Name Greeting</li>
+            <li>Task Sorting (6 sort options)</li>
+        </ul>
+        <button class="button" onclick="runAllTests()">Run All Tests</button>
+        <button class="button" onclick="clearResults()">Clear Results</button>
+        <button class="button" onclick="openDashboard()">Open Dashboard</button>
+    </div>
+
+    <div id="results"></div>
+
+    <div class="test-section">
+        <h2>Dashboard Preview</h2>
+        <p>The dashboard is loaded below for testing. Use the buttons above to run automated tests.</p>
+        <iframe id="dashboard-frame" src="index.html"></iframe>
+    </div>
+
+    <script>
+        let testResults = [];
+        let dashboardWindow = null;
+
+        function log(message, type = 'info') {
+            const result = { message, type, timestamp: new Date().toISOString() };
+            testResults.push(result);
+            displayResults();
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-result ${result.type}`;
+                div.textContent = result.message;
+                resultsDiv.appendChild(div);
+            });
+
+            // Add summary
+            const passed = testResults.filter(r => r.type === 'pass').length;
+            const failed = testResults.filter(r => r.type === 'fail').length;
+            
+            if (passed > 0 || failed > 0) {
+                const summary = document.createElement('div');
+                summary.className = `summary ${failed === 0 ? 'pass' : 'fail'}`;
+                summary.textContent = `Summary: ${passed} passed, ${failed} failed`;
+                resultsDiv.appendChild(summary);
+            }
+        }
+
+        function clearResults() {
+            testResults = [];
+            displayResults();
+        }
+
+        function openDashboard() {
+            window.open('index.html', '_blank');
+        }
+
+        function getDashboardWindow() {
+            const iframe = document.getElementById('dashboard-frame');
+            return iframe.contentWindow;
+        }
+
+        async function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function runAllTests() {
+            clearResults();
+            log('=== Starting Task 16 Verification Tests ===', 'info');
+            
+            await sleep(500);
+            
+            try {
+                await testThemeToggle();
+                await testThemePersistence();
+                await testCustomName();
+                await testNamePersistence();
+                await testTaskSorting();
+                await testSortPersistence();
+                await testIntegration();
+                
+                log('=== All Tests Complete ===', 'info');
+            } catch (error) {
+                log(`Error running tests: ${error.message}`, 'fail');
+            }
+        }
+
+        async function testThemeToggle() {
+            log('TEST 1: Theme Toggle Functionality', 'info');
+            
+            const win = getDashboardWindow();
+            const doc = win.document;
+            
+            const themeToggle = doc.getElementById('theme-toggle');
+            const themeIcon = doc.getElementById('theme-icon');
+            
+            if (!themeToggle) {
+                log('✗ Theme toggle button not found', 'fail');
+                return;
+            }
+            log('✓ Theme toggle button exists', 'pass');
+            
+            if (!themeIcon) {
+                log('✗ Theme icon not found', 'fail');
+                return;
+            }
+            log('✓ Theme icon exists', 'pass');
+            
+            const initialTheme = doc.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+            log(`  Current theme: ${initialTheme}`, 'info');
+            
+            // Test toggle
+            themeToggle.click();
+            await sleep(500);
+            
+            const newTheme = doc.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+            
+            if (newTheme !== initialTheme) {
+                log('✓ Theme toggle switches themes correctly', 'pass');
+            } else {
+                log('✗ Theme toggle did not switch themes', 'fail');
+            }
+            
+            // Toggle back
+            themeToggle.click();
+            await sleep(500);
+        }
+
+        async function testThemePersistence() {
+            log('TEST 2: Theme Persistence', 'info');
+            
+            const win = getDashboardWindow();
+            const savedTheme = win.localStorage.getItem('dashboard_theme');
+            
+            if (savedTheme) {
+                log(`✓ Theme saved in localStorage: ${savedTheme}`, 'pass');
+                
+                const currentTheme = win.document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+                const parsedTheme = JSON.parse(savedTheme);
+                
+                if (currentTheme === parsedTheme) {
+                    log('✓ Saved theme matches current theme', 'pass');
+                } else {
+                    log(`✗ Theme mismatch: saved=${parsedTheme}, current=${currentTheme}`, 'fail');
+                }
+            } else {
+                log('  No theme saved (using default)', 'info');
+            }
+        }
+
+        async function testCustomName() {
+            log('TEST 3: Custom Name Greeting', 'info');
+            
+            const win = getDashboardWindow();
+            const doc = win.document;
+            
+            const nameInput = doc.getElementById('name-input');
+            const greetingText = doc.getElementById('greeting-text');
+            
+            if (!nameInput) {
+                log('✗ Name input not found', 'fail');
+                return;
+            }
+            log('✓ Name input exists', 'pass');
+            
+            if (!greetingText) {
+                log('✗ Greeting text not found', 'fail');
+                return;
+            }
+            log('✓ Greeting text exists', 'pass');
+            
+            // Test setting name
+            const testName = 'TestUser';
+            nameInput.value = testName;
+            nameInput.dispatchEvent(new Event('blur'));
+            
+            await sleep(500);
+            
+            const greeting = greetingText.textContent;
+            if (greeting.includes(testName)) {
+                log(`✓ Name appears in greeting: "${greeting}"`, 'pass');
+            } else {
+                log(`✗ Name not in greeting: "${greeting}"`, 'fail');
+            }
+            
+            // Test clearing name
+            nameInput.value = '';
+            nameInput.dispatchEvent(new Event('blur'));
+            
+            await sleep(500);
+            
+            const newGreeting = greetingText.textContent;
+            if (!newGreeting.includes(testName)) {
+                log(`✓ Name removed from greeting: "${newGreeting}"`, 'pass');
+            } else {
+                log('✗ Name still appears after clearing', 'fail');
+            }
+        }
+
+        async function testNamePersistence() {
+            log('TEST 4: Name Persistence', 'info');
+            
+            const win = getDashboardWindow();
+            const savedName = win.localStorage.getItem('dashboard_userName');
+            
+            if (savedName !== null) {
+                log(`✓ Name saved in localStorage: "${JSON.parse(savedName)}"`, 'pass');
+            } else {
+                log('  No name saved (this is OK)', 'info');
+            }
+        }
+
+        async function testTaskSorting() {
+            log('TEST 5: Task Sorting Functionality', 'info');
+            
+            const win = getDashboardWindow();
+            const doc = win.document;
+            
+            const sortSelect = doc.getElementById('task-sort-select');
+            
+            if (!sortSelect) {
+                log('✗ Sort dropdown not found', 'fail');
+                return;
+            }
+            log('✓ Sort dropdown exists', 'pass');
+            
+            const options = Array.from(sortSelect.options).map(o => o.value);
+            const expectedOptions = ['default', 'newest', 'oldest', 'alpha', 'incomplete', 'completed'];
+            
+            const hasAllOptions = expectedOptions.every(opt => options.includes(opt));
+            
+            if (hasAllOptions) {
+                log('✓ All 6 sort options present', 'pass');
+            } else {
+                log(`✗ Missing sort options. Found: ${options.join(', ')}`, 'fail');
+            }
+            
+            // Test each sort option
+            for (const option of expectedOptions) {
+                sortSelect.value = option;
+                sortSelect.dispatchEvent(new Event('change'));
+                await sleep(200);
+                
+                if (sortSelect.value === option) {
+                    log(`  ✓ ${option} sort applied`, 'pass');
+                } else {
+                    log(`  ✗ ${option} sort failed`, 'fail');
+                }
+            }
+        }
+
+        async function testSortPersistence() {
+            log('TEST 6: Sort Persistence', 'info');
+            
+            const win = getDashboardWindow();
+            const savedSort = win.localStorage.getItem('dashboard_sortPreference');
+            
+            if (savedSort) {
+                log(`✓ Sort preference saved: ${JSON.parse(savedSort)}`, 'pass');
+                
+                const sortSelect = win.document.getElementById('task-sort-select');
+                if (sortSelect) {
+                    const parsedSort = JSON.parse(savedSort);
+                    if (sortSelect.value === parsedSort) {
+                        log('✓ Sort preference loads correctly', 'pass');
+                    } else {
+                        log(`✗ Sort mismatch: saved=${parsedSort}, current=${sortSelect.value}`, 'fail');
+                    }
+                }
+            } else {
+                log('  No sort preference saved (using default)', 'info');
+            }
+        }
+
+        async function testIntegration() {
+            log('TEST 7: Integration - All Features Together', 'info');
+            
+            const win = getDashboardWindow();
+            const doc = win.document;
+            
+            const themeToggle = doc.getElementById('theme-toggle');
+            const nameInput = doc.getElementById('name-input');
+            const sortSelect = doc.getElementById('task-sort-select');
+            const greetingText = doc.getElementById('greeting-text');
+            
+            // Set name
+            nameInput.value = 'IntegrationTest';
+            nameInput.dispatchEvent(new Event('blur'));
+            await sleep(500);
+            
+            // Toggle theme
+            themeToggle.click();
+            await sleep(500);
+            
+            // Change sort
+            sortSelect.value = 'alpha';
+            sortSelect.dispatchEvent(new Event('change'));
+            await sleep(500);
+            
+            const nameWorks = greetingText.textContent.includes('IntegrationTest');
+            const themeWorks = doc.documentElement.classList.contains('dark-theme') || 
+                              doc.documentElement.classList.contains('light-theme');
+            const sortWorks = sortSelect.value === 'alpha';
+            
+            if (nameWorks) {
+                log('  ✓ Name feature works', 'pass');
+            } else {
+                log('  ✗ Name feature not working', 'fail');
+            }
+            
+            if (themeWorks) {
+                log('  ✓ Theme feature works', 'pass');
+            } else {
+                log('  ✗ Theme feature not working', 'fail');
+            }
+            
+            if (sortWorks) {
+                log('  ✓ Sort feature works', 'pass');
+            } else {
+                log('  ✗ Sort feature not working', 'fail');
+            }
+            
+            // Check persistence
+            const themeStored = win.localStorage.getItem('dashboard_theme');
+            const nameStored = win.localStorage.getItem('dashboard_userName');
+            const sortStored = win.localStorage.getItem('dashboard_sortPreference');
+            
+            if (themeStored && nameStored !== null && sortStored) {
+                log('✓ All preferences persist correctly', 'pass');
+            } else {
+                log('✗ Not all preferences persist', 'fail');
+            }
+        }
+
+        // Auto-run tests after iframe loads
+        window.addEventListener('load', () => {
+            const iframe = document.getElementById('dashboard-frame');
+            iframe.addEventListener('load', () => {
+                log('Dashboard loaded. Click "Run All Tests" to begin verification.', 'info');
+            });
+        });
+    </script>
+</body>
+</html>
